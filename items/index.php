@@ -3,8 +3,8 @@
 // 定义应用目录
 define('SYS_PATH', __DIR__ . '/../system/');
 
-require_once SYS_PATH.'Leaf.php';
-//$_SERVER['variable']
-var_dump($_SERVER);
+
+//请求入口
+require_once SYS_PATH.'Request.php';
 
 ?>
