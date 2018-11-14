@@ -1,0 +1,8 @@
+[2018-11-14 09:46:08] name.WARNING: Foo [] []
+[2018-11-14 09:46:08] name.ERROR: Bar [] []
+[2018-11-14 09:46:08] name.WARNING: Foo [] []
+[2018-11-14 09:46:08] name.ERROR: Bar [] []
+[2018-11-14 09:54:02] name.WARNING: FooUndefined variable: dey [] []
+[2018-11-14 09:54:02] name.ERROR: Bar [] []
+[2018-11-14 09:54:02] name.WARNING: FooUndefined variable: dey [] []
+[2018-11-14 09:54:02] name.ERROR: Bar [] []

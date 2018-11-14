@@ -5,6 +5,7 @@
  * Time: 23:10
  */
 
+namespace Leaf;
 
 class Request{
 
@@ -14,7 +15,7 @@ class Request{
      */
     public function __construct()
     {
-
+        var_dump($dey);
     }
 }
 
