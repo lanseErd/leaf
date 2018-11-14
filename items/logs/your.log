@@ -1,8 +1,4 @@
-[2018-11-14 09:46:08] name.WARNING: Foo [] []
-[2018-11-14 09:46:08] name.ERROR: Bar [] []
-[2018-11-14 09:46:08] name.WARNING: Foo [] []
-[2018-11-14 09:46:08] name.ERROR: Bar [] []
-[2018-11-14 09:54:02] name.WARNING: FooUndefined variable: dey [] []
-[2018-11-14 09:54:02] name.ERROR: Bar [] []
-[2018-11-14 09:54:02] name.WARNING: FooUndefined variable: dey [] []
-[2018-11-14 09:54:02] name.ERROR: Bar [] []
+[2018-11-14 15:08:47] name.ERROR: Bar ["D:\\wamp64\\www\\leaf\\system\\Request.php18Undefined variable: dey"] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-14 15:08:47] name.ERROR: Bar ["D:\\wamp64\\www\\leaf\\system\\Request.php18Undefined variable: dey"] {"url":"/favicon.ico","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":"http://leaf.com/"}
+[2018-11-14 15:09:23] name.ERROR: Bar ["D:\\wamp64\\www\\leaf\\system\\Request.php Line:18 Undefined variable: dey"] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-14 15:09:23] name.ERROR: Bar ["D:\\wamp64\\www\\leaf\\system\\Request.php Line:18 Undefined variable: dey"] {"url":"/favicon.ico","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":"http://leaf.com/"}

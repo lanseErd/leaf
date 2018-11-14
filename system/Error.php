@@ -9,6 +9,10 @@ namespace Leaf;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Formatter\HtmlFormatter;
+use Monolog\Processor\WebProcessor;
+
 
 class Error{
     public static function init(){
@@ -30,13 +34,16 @@ class Error{
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
-        echo 2;
         $log = new Logger('name');
-        $log->pushHandler(new StreamHandler('logs/your.log', Logger::WARNING));
+        $stream_handler = new StreamHandler('logs/your.log'); // 过滤级别
+        $stream_handler->setFormatter(new LineFormatter());
+        $log->pushHandler($stream_handler);
 
-        // add records to the log
-        $log->warning('Foo'.$errstr);
-        $log->error('Bar');
+        $web_url = new WebProcessor();
+        $log->pushProcessor($web_url);
+
+
+        $log->error('Bar',[$errfile.' Line:'.$errline.' '.$errstr]);
 
     }
 
