@@ -12,7 +12,8 @@ class Load{
     /**
      * 初始化
      */
-    public static function initialize(){
+    public static function initialize()
+    {
         spl_autoload_register( 'Leaf\\Load::autoload', true, true);
     }
 
@@ -21,7 +22,8 @@ class Load{
      * 加载文件
      * @param $className 类名
      */
-    public static function autoload($className){
+    public static function autoload($className)
+    {
         $classPath = pathinfo($className);
         $path_array = explode(DIRECTORY_SEPARATOR,$classPath['dirname']);
 
@@ -37,3 +39,7 @@ class Load{
     }
 
 }
+
+
+//加载系统方法
+require SYS_PATH.'Common.php';

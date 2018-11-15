@@ -7,15 +7,9 @@
 
 namespace Leaf;
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Formatter\HtmlFormatter;
-use Monolog\Processor\WebProcessor;
-
-
 class Error{
-    public static function init(){
+    public static function init()
+    {
         error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
@@ -34,16 +28,8 @@ class Error{
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
-        $log = new Logger('name');
-        $stream_handler = new StreamHandler('logs/your.log'); // 过滤级别
-        $stream_handler->setFormatter(new LineFormatter());
-        $log->pushHandler($stream_handler);
-
-        $web_url = new WebProcessor();
-        $log->pushProcessor($web_url);
-
-
-        $log->error('Bar',[$errfile.' Line:'.$errline.' '.$errstr]);
+        $exception = new ErrorException($errno, $errstr, $errfile, $errline);
+        var_dump($exception);
 
     }
 
@@ -55,7 +41,10 @@ class Error{
      */
     public static function appException($e)
     {
-        var_dump($e);
+        if (!$e instanceof \Exception) {
+            $e = new ThrowableError($e);
+            var_dump($e);
+        }
 
     }
 
@@ -66,7 +55,39 @@ class Error{
      */
     public static function appShutdown()
     {
-        //
+        // 将错误信息托管至 think\ErrorException
+        if (!is_null($error = error_get_last()) && self::isFatal($error['type'])===1) {
+            self::appException(new ErrorException(
+                $error['type'], $error['message'], $error['file'], $error['line']
+            ));
+        }
+    }
+
+    /**
+     * 确定错误类型
+     * @access protected
+     * @param  int $type 错误类型
+     * @return bool
+     */
+    protected static function isFatal($type)
+    {
+        //致命错误
+        if (in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]))
+        {
+            return 1;
+        }
+        //通知类错误
+        if (in_array($type, [E_NOTICE, E_USER_NOTICE]))
+        {
+            return 2;
+        }
+        //警告类错误
+        if (in_array($type, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING]))
+        {
+            return 3;
+        }
+
+        return false;
     }
 
 }
