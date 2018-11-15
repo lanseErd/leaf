@@ -20,3 +20,4 @@ $cn['logger'] = array(
     //运行日志文件名
     'run_log'=>'run.log',
 );
+return $cn;

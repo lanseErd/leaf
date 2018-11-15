@@ -17,7 +17,7 @@ class Request{
     {
         // 模拟Fatal error错误
         //test();
-        //var_dump($rre);
+        echo $rre;
         //var_dump($rres);
 
         // 模拟用户产生ERROR错误

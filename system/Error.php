@@ -29,7 +29,7 @@ class Error{
     public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
         $exception = new ErrorException($errno, $errstr, $errfile, $errline);
-        var_dump($exception);
+        //var_dump($exception);
 
     }
 

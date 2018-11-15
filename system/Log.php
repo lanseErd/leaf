@@ -29,6 +29,34 @@ class Log{
         $log->error('Bar',[$errfile.' Line:'.$errline.' '.$errstr]);
     }
 
+
+    /**
+     * 错误日志
+     *
+     */
+    public static function anomaly_log()
+    {
+        //
+    }
+
+    /**
+     * 运行日志
+     *
+     */
+    public static function run_log()
+    {
+        //
+    }
+
+    /**
+     * 用户自定义日志
+     *
+     */
+    public static function user_defined_log()
+    {
+        //
+    }
+
 }
 
 ?>

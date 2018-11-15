@@ -25,7 +25,6 @@ if ( ! function_exists('load_file'))
         if(file_exists($dir))
         {
             include $dir;
-            return $cn;
         }
 
     }
