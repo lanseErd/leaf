@@ -20,7 +20,9 @@ Leaf\Config::set(include APP_PATH.'configs/config.php');
 //注册异常
 Leaf\Error::init();
 
-$rru = Leaf\Config::get('logger');
+//开启运行日志
+$run_log = new Leaf\Log();
+$run_log->run_log();
 
 
 new Leaf\Request();

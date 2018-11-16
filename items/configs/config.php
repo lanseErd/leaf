@@ -10,11 +10,9 @@ $cn['logger'] = array(
 
     /*
      * 日志大小，以及分割机制
-     * @param  string 0 不分割
-     * @param  string 1 按天分割文件
-     * @param  string xM 按大小分割，例如10M
+     * @param  string 按天分割文件，保留文件个数，前面的会自动删除，0表示不现在
      */
-    'log_size'=>"0",
+    'log_length'=>"0",
     //错误日志文件名
     'error_name'=>'error.log',
     //运行日志文件名

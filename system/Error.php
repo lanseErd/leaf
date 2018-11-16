@@ -6,7 +6,7 @@
  */
 
 namespace Leaf;
-
+use Leaf\Log as log;
 class Error{
     public static function init()
     {
@@ -28,9 +28,10 @@ class Error{
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
-        $exception = new ErrorException($errno, $errstr, $errfile, $errline);
-        //var_dump($exception);
-
+        $err_no = self::isFatal($errno);
+        $message = $errstr.' '.$errfile.' LINE:'.$errline;
+        $log = new log();
+        $log->anomaly_log($err_no,$message);
     }
 
     /**
@@ -43,7 +44,9 @@ class Error{
     {
         if (!$e instanceof \Exception) {
             $e = new ThrowableError($e);
-            var_dump($e);
+            $message = $e->getMessage().' '.$e->getFile().' LINE:'.$e->getLine();
+            $log = new log();
+            $log->anomaly_log(1,$message);
         }
 
     }
@@ -61,6 +64,7 @@ class Error{
                 $error['type'], $error['message'], $error['file'], $error['line']
             ));
         }
+
     }
 
     /**

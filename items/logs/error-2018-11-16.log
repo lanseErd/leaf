@@ -1,0 +1,4 @@
+[2018-11-16 09:56:16] Leaf.NOTICE: Undefined variable: rre D:\djc_cms_test\leaf\system\Request.php LINE:20 [] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-16 09:56:16] Leaf.NOTICE: Undefined variable: rre D:\djc_cms_test\leaf\system\Request.php LINE:20 [] {"url":"/favicon.ico","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":"http://leaf.com/"}
+[2018-11-16 09:56:21] Leaf.NOTICE: Undefined variable: rre D:\djc_cms_test\leaf\system\Request.php LINE:20 [] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-16 09:56:21] Leaf.NOTICE: Undefined variable: rre D:\djc_cms_test\leaf\system\Request.php LINE:20 [] {"url":"/favicon.ico","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":"http://leaf.com/"}
