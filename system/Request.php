@@ -10,33 +10,55 @@ namespace Leaf;
 class Request{
 
 
+    private $server;
+
+    public static $method;
+
+    public static $param_url=[];
+
+    private static $start_time;
+
     /**
      * Request constructor.
      */
     public function __construct()
     {
-        // 模拟Fatal error错误
-        //test();
-        echo $rre;
-        //var_dump($rres);
+        $this->server = $_SERVER;
+        self::$start_time = $this->server['REQUEST_TIME_FLOAT'];
+        $this->request_method();
+        $this->request_url();
+    }
 
-        // 模拟用户产生ERROR错误
-        //trigger_error('zyf-error', E_USER_ERROR);
 
-        // 模拟语法错误
-        //var_dump(23+-+);
+    /**
+     * 请求方式
+     */
+    private function request_method()
+    {
+        self::$method = $this->server['REQUEST_METHOD'];
+    }
 
-        // 模拟Notice错误
-        //echo $f;
-        //new uudd();
 
-        // 模拟Warning错误
-        //echo '123';
-        //ob_flush();
-        //flush();
-        //header("Content-type:text/html;charset=gb2312");
+    /**
+     * url处理
+     */
+    private function request_url(){
+        $url = pathinfo(strtolower($this->server['REQUEST_URI']));
+        foreach($url as $key=>$val)
+        {
+            if($key === 'dirname')
+            {
+                $path = explode('/',$val);
+                $path = array_filter($path);
+                foreach($path as $path_val){
+                    $path_url[] = $path_val;
+                    //preg_match('/(^\w+$)/', $val, $matches);
+                }
+                self::$param_url['dirname'] = $path_url;
+            }else{
+                self::$param_url[$key] = $val;
+            }
+        }
     }
 }
-
-
 ?>

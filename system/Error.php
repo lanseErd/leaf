@@ -6,10 +6,12 @@
  */
 
 namespace Leaf;
-use Leaf\Log as log;
+use Leaf\Log;
+use Leaf\Config;
 class Error{
     public static function init()
     {
+
         error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
@@ -30,8 +32,17 @@ class Error{
     {
         $err_no = self::isFatal($errno);
         $message = $errstr.' '.$errfile.' LINE:'.$errline;
-        $log = new log();
+        $log = new Log();
         $log->anomaly_log($err_no,$message);
+
+        //是否开启调试模式
+        if(Config::get('debug'))
+        {
+            $log->debug($err_no,$message);
+        }else{
+            header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+        }
+
     }
 
     /**
@@ -42,13 +53,17 @@ class Error{
      */
     public static function appException($e)
     {
-        if (!$e instanceof \Exception) {
-            $e = new ThrowableError($e);
-            $message = $e->getMessage().' '.$e->getFile().' LINE:'.$e->getLine();
-            $log = new log();
-            $log->anomaly_log(1,$message);
+        $e = new ThrowableError($e);
+        $message = $e->getMessage().' '.$e->getFile().' LINE:'.$e->getLine();
+        $log = new Log();
+        $log->anomaly_log(1,$message);
+        //是否开启调试模式
+        if(Config::get('debug'))
+        {
+            $log->debug(1, $message);
+        }else{
+            header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
         }
-
     }
 
     /**

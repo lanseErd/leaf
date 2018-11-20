@@ -1,2 +1,0 @@
-[2018-11-16 09:56:21] Leaf.INFO: Run_log [] {"memory_usage":"2 MB","file":"D:\\djc_cms_test\\leaf\\system\\Log.php","line":133,"class":"Leaf\\Log","function":"run_log","url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
-[2018-11-16 09:56:21] Leaf.INFO: Run_log [] {"memory_usage":"2 MB","file":"D:\\djc_cms_test\\leaf\\system\\Log.php","line":133,"class":"Leaf\\Log","function":"run_log","url":"/favicon.ico","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":"http://leaf.com/"}

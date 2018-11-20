@@ -6,7 +6,7 @@
  */
 
 //日志
-$cn['logger'] = array(
+$cn['logger'] = [
 
     /*
      * 日志大小，以及分割机制
@@ -15,7 +15,10 @@ $cn['logger'] = array(
     'log_length'=>"0",
     //错误日志文件名
     'error_name'=>'error.log',
-    //运行日志文件名
-    'run_log'=>'run.log',
-);
+    //运行日志0关闭 写入文件名表示开启 格式.log
+    'run_log'=>0,
+];
+
+//调试模式
+$cn['debug'] = true;
 return $cn;

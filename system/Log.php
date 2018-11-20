@@ -6,16 +6,12 @@
  */
 
 namespace Leaf;
-use Leaf\Config as Config;
+use Leaf\Config;
+use Leaf\Debug;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Formatter\HtmlFormatter;
-use Monolog\Processor\WebProcessor;
-use Monolog\Processor\IntrospectionProcessor;
-use Monolog\Processor\MemoryUsageProcessor;
-use Monolog\Processor\MemoryPeakUsageProcessor;
+use Monolog\Handler\{StreamHandler,RotatingFileHandler};
+use Monolog\Formatter\{LineFormatter,HtmlFormatter};
+use Monolog\Processor\{WebProcessor,IntrospectionProcessor,MemoryUsageProcessor,MemoryPeakUsageProcessor};
 
 
 
@@ -37,37 +33,13 @@ class Log{
     /**
      * @var Logger 日志实例
      */
-    private $log_obj;
+    private static $log_obj;
 
     public function __construct()
     {
         self::$log_con = Config::get('logger');
-        $this->log_obj = new Logger('Leaf');
+        self::$log_obj = new Logger('Leaf');
     }
-
-
-
-    /**
-     * 写入日志
-     * @param int $err_no 错误等级
-     * @param String $log_file 文件名
-     * @param String $message 错误信息
-     * @throws \Exception
-     */
-    private function instantiation(int $err_no, String $log_file, String $message)
-    {
-        $stream_handler = new RotatingFileHandler('logs/'.$log_file,self::$log_con['log_length']); // 过滤级别
-        $stream_handler->setFormatter(new LineFormatter());
-        $this->log_obj->pushHandler($stream_handler);
-
-
-        //当前url信息
-        $web_url = new WebProcessor();
-        $this->log_obj->pushProcessor($web_url);
-
-        $this->log_obj->{$this->write_method($err_no)}($message);
-    }
-
 
     /**
      * 根据错误等级选择写入方法
@@ -100,7 +72,15 @@ class Log{
      */
     public function anomaly_log(int $err_no, String $message)
     {
-        $this->instantiation($err_no,self::$log_con['error_name'],$message);
+        $stream_handler = new RotatingFileHandler('logs/'.self::$log_con['error_name'],self::$log_con['log_length']); // 过滤级别
+        $stream_handler->setFormatter(new LineFormatter());
+        self::$log_obj->pushHandler($stream_handler);
+
+        //当前url信息
+        $web_url = new WebProcessor();
+        self::$log_obj->pushProcessor($web_url);
+
+        self::$log_obj->{$this->write_method($err_no)}($message);
     }
 
     /**
@@ -111,35 +91,65 @@ class Log{
     {
         $stream_handler = new RotatingFileHandler('logs/'.self::$log_con['run_log'],self::$log_con['log_length']); // 过滤级别
         $stream_handler->setFormatter(new LineFormatter());
-        $this->log_obj->pushHandler($stream_handler);
+        self::$log_obj->pushHandler($stream_handler);
 
 
         //当前url信息
         $web_url = new WebProcessor();
-        $this->log_obj->pushProcessor($web_url);
+        self::$log_obj->pushProcessor($web_url);
 
         //增加当前脚本的文件名和类名等信息。
         $intspen = new IntrospectionProcessor();
-        $this->log_obj->pushProcessor($intspen);
+        self::$log_obj->pushProcessor($intspen);
 
         //增加当前内存使用情况信息。
         $Memory = new MemoryUsageProcessor();
-        $this->log_obj->pushProcessor($Memory);
+        self::$log_obj->pushProcessor($Memory);
 
         //增加内存使用高峰时的信息。
 //        $MemoryPeak = new MemoryPeakUsageProcessor();
 //        $log->pushProcessor($MemoryPeak);
 
-        $this->log_obj->INFO('Run_log');
+        self::$log_obj->INFO('Run_log');
     }
+
 
     /**
      * 用户自定义日志
-     *
+     * @param String $file_name 文件名
+     * @param String $message 消息
+     * @param array $mes_array 自定义数组
+     * @return bool
+     * @throws \Exception
      */
-    public static function user_defined_log()
+    public function user_defined_log(String $file_name, String $message, array $mes_array = [])
     {
-        //
+        $file_extension = pathinfo($file_name);
+        if($file_extension['extension']!='log') return false;
+        $stream_handler = new StreamHandler('logs/'.$file_name); // 过滤级别
+        $stream_handler->setFormatter(new LineFormatter());
+        self::$log_obj->pushHandler($stream_handler);
+        self::$log_obj->INFO('user_defined: '.$message,$mes_array);
+    }
+
+    /**
+     * 调试信息
+     * @param int $errstr 错误编号
+     * @param String $message 错误信息
+     * @throws \Exception
+     */
+    public function debug(int $err_no, String $message)
+    {
+        $log = new Logger('Debug');
+        $stream_handler = new Debug();
+        $stream_handler->setFormatter(new HtmlFormatter());
+        $log->pushHandler($stream_handler);
+
+        //当前url信息
+        $web_url = new WebProcessor();
+        $log->pushProcessor($web_url);
+
+        $log->{$this->write_method($err_no)}($message);
     }
 
 }
