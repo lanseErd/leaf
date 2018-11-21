@@ -18,36 +18,31 @@ class Router{
     {
         if(!empty($alias))
         {
-            $http_url = pathinfo($_SERVER['REQUEST_URI'],PATHINFO_DIRNAME);
+            $http_url = Request::$param_url['dirname'];
             foreach($alias as $key=>$val)
             {
                 $is_param = substr($key,0,strpos($key,'?'));
                 if($is_param){
-                    $http_path = $is_param;
+                    $route_path = $is_param;
                 }else{
-                    $http_path = $key;
+                    $route_path = $key;
                 }
 
-                //判断有没有申明该路由
-                if(substr($http_url,0,strlen($http_path)) === $http_path){
+                //判断有没有申明该路由favicon.ico
+                if(substr($http_url,0,strlen($route_path)) === $route_path){
                     self::$http[$val[0]] = 1;
                 }else{
-                    var_dump($http_url);
-                    $http_path = self::is_controller_method($http_url);
-                    if($http_path){
-                        $http_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$http_path);
-                        self::$http[$http_path] = 1;
+                    $route_path = self::is_controller_method($http_url);
+                    if(!empty($route_path)){
+                        $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
+                        self::$http[$route_path] = 1;
                     }else{
                         //没有该接口
-                        file_put_contents("ddd.txt", "222.".PHP_EOL, FILE_APPEND);
-                        throw new \Exception("没有该地址ss");//使用throw抛出异常
+                        throw new \Exception("没有该地址");//使用throw抛出异常
                     }
                 }
             }
-
         }
-
-        //
     }
 
 
@@ -67,10 +62,16 @@ class Router{
     public static function is_controller_method($http_path)
     {
         $array_path = explode('/',$http_path);
-        $i=0;
-        while($i<count($array_path)){
+        $array_length = count($array_path);
+        $i=1;
+        while($i<$array_length){
             if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
-                return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
+
+                if(!empty($array_path[$i+1])){
+                    return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
+                }else{
+                    return $array_path[$i];
+                }
             }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])) {
                 if (!empty($array_path[$i + 1])) {
                     $array_path[$i + 1] = $array_path[$i] . DIRECTORY_SEPARATOR . $array_path[$i + 1];

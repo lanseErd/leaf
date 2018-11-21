@@ -11,7 +11,11 @@ use Leaf\Config;
 class Error{
     public static function init()
     {
-
+        //以免引起查找/favicon.ico文件第二次请求影响程序错乱结束执行
+        if($_SERVER['REQUEST_URI']==='/favicon.ico')
+        {
+            exit;
+        }
         error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);

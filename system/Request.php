@@ -43,7 +43,10 @@ class Request{
      * url处理
      */
     private function request_url(){
+        self::$param_url['dirname'] = $this->server['REQUEST_URI'];
+        /*
         $url = pathinfo(strtolower($this->server['REQUEST_URI']));
+        var_dump($url);
         foreach($url as $key=>$val)
         {
             if($key === 'dirname')
@@ -58,7 +61,7 @@ class Request{
             }else{
                 self::$param_url[$key] = $val;
             }
-        }
+        }*/
     }
 }
 ?>

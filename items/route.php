@@ -5,9 +5,12 @@
  * Time: 17:50
  */
 
+use Leaf\Router;
 
-Request::init([
-    'mem/?id/?userid'=>['member/member/add','method'=>'get','ext'=>'html','param'=>function(){}]
-]);
+Router::init(
+    ['mem/?id/?userid'=>['member/member/add','method'=>'get','ext'=>'html','param'=>function(){
+        return 1;
+    }]],
+    ['method'=>'get','ext'=>'html','param'=>function($all){}]);
 
 ?>
