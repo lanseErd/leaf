@@ -7,8 +7,8 @@ class Leaf{
     public static function run()
     {
         //(new Router())->route();
-        //new Request();
-        include APP_PATH."router.php";
+        new Request();
+        include APP_PATH . "route.php";
 
     }
 }

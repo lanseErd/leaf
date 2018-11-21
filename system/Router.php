@@ -14,11 +14,8 @@ class Router{
 
     private $request;
 
-    public function init(array $alias,array $rule)
+    public static function init(array $alias,array $rule)
     {
-        //var_dump(Request::$param_url['dirname']);
-        //$request = new Request();
-
         if(!empty($alias))
         {
             $http_url = pathinfo($_SERVER['REQUEST_URI'],PATHINFO_DIRNAME);
@@ -36,7 +33,7 @@ class Router{
                     self::$http[$val[0]] = 1;
                 }else{
                     var_dump($http_url);
-                    $http_path = $this->is_controller_method($http_url);
+                    $http_path = self::is_controller_method($http_url);
                     if($http_path){
                         $http_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$http_path);
                         self::$http[$http_path] = 1;
@@ -67,31 +64,20 @@ class Router{
      * 验证未定义路由方法是否存在
      * @param $http_path
      */
-    public function is_controller_method($http_path)
+    public static function is_controller_method($http_path)
     {
         $array_path = explode('/',$http_path);
         $i=0;
-        //while($i<count($array_path)){
-//            if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
-//                return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
-//            }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])){
-//                if(!empty($array_path[$i+1])){
-//                    $array_path[$i+1] = $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
-//                }
-//            }
-
-
-
-            //$i++;
-        //}
-
-
-        for($i=0;$i<count($array_path);$i++){
-            if($i==1){
-                return true;
+        while($i<count($array_path)){
+            if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
+                return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
+            }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])) {
+                if (!empty($array_path[$i + 1])) {
+                    $array_path[$i + 1] = $array_path[$i] . DIRECTORY_SEPARATOR . $array_path[$i + 1];
+                }
             }
+            $i++;
         }
-
         return false;
     }
 
