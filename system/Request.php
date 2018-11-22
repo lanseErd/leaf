@@ -43,7 +43,7 @@ class Request{
      * url处理
      */
     private function request_url(){
-        self::$param_url['dirname'] = $this->server['REQUEST_URI'];
+        self::$param_url = $this->server['REQUEST_URI'];
         /*
         $url = pathinfo(strtolower($this->server['REQUEST_URI']));
         var_dump($url);

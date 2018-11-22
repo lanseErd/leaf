@@ -16,9 +16,16 @@ class Router{
 
     public static function init(array $alias,array $rule)
     {
-        if(!empty($alias))
+        $param_assets = pathinfo(Request::$param_url);
+        $http_url = str_replace(['\\','/'],['',DIRECTORY_SEPARATOR],$param_assets['dirname']);
+        if(!empty($http_url))
         {
-            $http_url = Request::$param_url['dirname'];
+            $http_url .= DIRECTORY_SEPARATOR;
+        }
+        $http_url .= $param_assets['basename'];
+
+        if(!empty($alias) && !empty($http_url))
+        {
             foreach($alias as $key=>$val)
             {
                 $is_param = substr($key,0,strpos($key,'?'));
@@ -28,17 +35,21 @@ class Router{
                     $route_path = $key;
                 }
 
-                //判断有没有申明该路由favicon.ico
-                if(substr($http_url,0,strlen($route_path)) === $route_path){
+                //判断有没有申明该路由
+                $http_url_verify = array_filter(explode(DIRECTORY_SEPARATOR,$http_url));
+                $http_url_verify = implode('/',$http_url_verify).'/';
+
+                if(substr($http_url_verify,0,strlen($route_path)) === $route_path){
                     self::$http[$val[0]] = 1;
                 }else{
-                    $route_path = self::is_controller_method($http_url);
+                    //判断默认路由规则
+                    $route_path = self::is_controller_method($http_url_verify);
                     if(!empty($route_path)){
                         $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
                         self::$http[$route_path] = 1;
                     }else{
                         //没有该接口
-                        throw new \Exception("没有该地址");//使用throw抛出异常
+                        throw new \Exception(Lang::get('no_address')."：".$http_url);//使用throw抛出异常
                     }
                 }
             }
@@ -63,7 +74,7 @@ class Router{
     {
         $array_path = explode('/',$http_path);
         $array_length = count($array_path);
-        $i=1;
+        $i=0;
         while($i<$array_length){
             if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
 
