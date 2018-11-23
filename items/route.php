@@ -8,9 +8,16 @@
 use Leaf\Router;
 
 Router::init(
-    ['mem/?id/?userid'=>['member/member/add','method'=>'get','ext'=>'html','param'=>function(){
-        return 1;
-    }]],
-    ['method'=>'get','ext'=>'html','param'=>function($all){}]);
+    [
+        //默认方法不可为空
+        'leaf_default'=>'index/index/init',
+        'mem/?id/?userid'=>['member/member/add','method'=>'get','ext'=>'html','param'=>
+                function(){
+                    return 1;
+                }
+            ]
+    ],
+    ['method'=>'get','ext'=>'html','param'=>function($all){}]
+);
 
 ?>
