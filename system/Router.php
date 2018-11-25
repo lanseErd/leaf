@@ -47,7 +47,18 @@ class Router{
 
                 $http_url_verify = array_filter(explode(DIRECTORY_SEPARATOR,$http_url));
                 $http_url_verify = implode('/',$http_url_verify).'/';
-                echo $http_url_verify;
+
+                //加上斜杠方便匹配
+                $is_req_dir = pathinfo($http_url_verify);
+                if(strlen($is_req_dir['dirname']) <=1 )
+                {
+                    $http_url_verify = $is_req_dir['filename'].'/';
+                }
+
+                if($route_path[strlen($route_path)-1]!=='/')
+                {
+                    $route_path = $route_path.'/';
+                }
                 //判断有没有申明该路由
                 if(substr($http_url_verify,0,strlen($route_path)) === $route_path){
 
@@ -60,7 +71,6 @@ class Router{
                     {
                         self::{$rule['method']}();
                     }
-
                     //验证扩展名
                     if(!empty($val['ext']))
                     {
@@ -74,11 +84,26 @@ class Router{
                     }
 
                     self::$http[$val[0]] = 1;
+
+                    $rule_fun = ($val['param']??$rule['param'])??null;
+                    $rule_key = substr($key,strlen($route_path),strlen($key))?:null;
+                    $rule_val = substr($http_url_verify,strlen($route_path),strlen($http_url_verify))?:null;
+                    //对参数进行解析
+                    if(!is_null($rule_key)){
+                        self::param_parse($rule_key,$rule_val,$rule_fun);
+                    }
                 }else{
+
                     //验证扩展名
                     self::extension();
                     //判断默认路由规则
+                    //echo $http_url_verify;
                     $route_path = self::is_controller_method($http_url_verify);
+                    $rule_val = substr($http_url_verify,strlen($route_path),strlen($http_url_verify))?:null;
+                    //对参数进行解析
+                    if(!is_null($rule_val)){
+                        self::param_parse(null,$rule_val,null);
+                    }
                     if(!empty($route_path)){
                         $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
                         self::$http[$route_path] = 1;
@@ -114,6 +139,15 @@ class Router{
 
     }
 
+
+    private static function param_parse($rule_key = null,$rule_val,$rule_fun = null)
+    {
+        if(!is_null($rule_key)){
+            echo $rule_key;
+            var_dump($rule_val);
+        }
+
+    }
 
     /**
      * 请求方式验证get
@@ -194,21 +228,24 @@ class Router{
         $array_path = explode('/',$http_path);
         $array_length = count($array_path);
         $i=0;
-        while($i<$array_length){
-            if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
+        if($array_length){
+            while($i<$array_length){
+                if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
 
-                if(!empty($array_path[$i+1])){
-                    return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
-                }else{
-                    return $array_path[$i];
+                    if(!empty($array_path[$i+1])){
+                        return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
+                    }else{
+                        return $array_path[$i];
+                    }
+                }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])) {
+                    if (!empty($array_path[$i + 1])) {
+                        $array_path[$i + 1] = $array_path[$i] . DIRECTORY_SEPARATOR . $array_path[$i + 1];
+                    }
                 }
-            }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])) {
-                if (!empty($array_path[$i + 1])) {
-                    $array_path[$i + 1] = $array_path[$i] . DIRECTORY_SEPARATOR . $array_path[$i + 1];
-                }
+                $i++;
             }
-            $i++;
         }
+
         return false;
     }
 

@@ -12,7 +12,7 @@ Router::init(
         //默认方法不可为空
         'leaf_default'=>'index/index/init',
         'mem/?id/?userid'=>['member/member/add','method'=>'get','ext'=>'html','param'=>
-                function(){
+                function($all){
                     return 1;
                 }
             ]
