@@ -113,7 +113,11 @@ class Router{
                     //判断默认路由规则
                     //echo $http_url_verify;
                     $route_path = self::is_controller_method($http_url_verify);
-                    $rule_val = substr($http_url_verify,strlen($route_path),strlen($http_url_verify))?:null;
+                    $_method = '';
+                    if(!empty(self::$method)){
+                        $_method = '/'.self::$method;
+                    }
+                    $rule_val = substr($http_url_verify,strlen($route_path.$_method),strlen($http_url_verify))?:null;
                     //对参数进行解析
                     if(!is_null($rule_val)){
                         self::param_parse(null,$rule_val,null);

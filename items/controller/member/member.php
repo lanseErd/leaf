@@ -8,9 +8,9 @@
 
 namespace Items\controller\member;
 class member{
-    public function add()
+    public function add($id,$userid)
     {
-        echo 666;
+        echo $id;
     }
 
     public function init(){
