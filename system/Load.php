@@ -25,11 +25,19 @@ class Load{
     public static function autoload($className)
     {
         $classPath = pathinfo($className);
+
         $path_array = explode(DIRECTORY_SEPARATOR,$classPath['dirname']);
+
 
         //系统文件路径
         if($path_array[0] === 'Leaf'){
             $dir = SYS_PATH.str_replace("Leaf".DIRECTORY_SEPARATOR,'',$className).".php";
+            if(file_exists($dir)){
+                //echo $dir;
+                include $dir;
+            }
+        }elseif ($path_array[0] === 'Items'){
+            $dir = str_replace(array($path_array[0].DIRECTORY_SEPARATOR),array(''),$className).".php";
             if(file_exists($dir)){
                 //echo $dir;
                 include $dir;

@@ -13,7 +13,10 @@ Router::init(
         'leaf_default'=>'index/index/init',
         'mem/?id/?userid'=>['member/member/add','method'=>'get','ext'=>'html','param'=>
                 function($all){
-                    return 1;
+                    //验证成功返回验证过的$all，否则返回false
+                    //$all['id'] = intval($all['id']);
+                    //$all['userid'] = intval($all['userid']);
+                    return $all;
                 }
             ]
     ],

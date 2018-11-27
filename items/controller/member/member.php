@@ -6,11 +6,14 @@
  * Time: 12:12
  */
 
-namespace items\controller\member\member;
-
+namespace Items\controller\member;
 class member{
     public function add()
     {
-        echo 'test';
+        echo 666;
+    }
+
+    public function init(){
+        echo 888;
     }
 }

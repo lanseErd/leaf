@@ -12,10 +12,21 @@ class Router{
 
     private static $http;
 
+    private static $method;
+
+    private static $param;
+
+    private static $ext;
+
     private static $param_assets;
 
     private $request;
 
+
+    public static function external()
+    {
+        return [self::$http,self::$method,self::$param];
+    }
 
     /**
      * 注册路由
@@ -83,13 +94,16 @@ class Router{
                         self::extension();
                     }
 
-                    self::$http[$val[0]] = 1;
+                    //self::$http = substr($val[0],0,strripos($val[0],'/'));
+                    //self::$method = substr($val[0],strripos($val[0],'/')+1,strlen($val[0]));
+
+                    self::$http = self::is_controller_method($val[0]);
 
                     $rule_fun = ($val['param']??$rule['param'])??null;
                     $rule_key = substr($key,strlen($route_path),strlen($key))?:null;
                     $rule_val = substr($http_url_verify,strlen($route_path),strlen($http_url_verify))?:null;
                     //对参数进行解析
-                    if(!is_null($rule_key)){
+                    if(!is_null($rule_key) && !is_null($rule_val)){
                         self::param_parse($rule_key,$rule_val,$rule_fun);
                     }
                 }else{
@@ -106,7 +120,7 @@ class Router{
                     }
                     if(!empty($route_path)){
                         $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
-                        self::$http[$route_path] = 1;
+                        self::$http = $route_path;
                     }else{
                         //没有该接口
                         throw new \Exception(Lang::get('no_address')."：".$http_url);
@@ -125,7 +139,7 @@ class Router{
                 $route_path = self::is_controller_method($alias['leaf_default']);
                 if(!empty($route_path)){
                     $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
-                    self::$http[$route_path] = 1;
+                    self::$http = $route_path;
                 }else{
                     //没有该接口
                     throw new \Exception(Lang::get('no_address')."：".$alias['leaf_default']);
@@ -140,11 +154,62 @@ class Router{
     }
 
 
-    private static function param_parse($rule_key = null,$rule_val,$rule_fun = null)
+    /**
+     * 参数解析
+     * @param null $rule_key  路由规则
+     * @param $rule_val  参数
+     * @param null $rule_fun  处理方法
+     * @throws \Exception
+     */
+    private static function param_parse($rule_key = null, $rule_val, $rule_fun = null)
     {
-        if(!is_null($rule_key)){
-            echo $rule_key;
-            var_dump($rule_val);
+        //去除空值并重新排序
+        $val_incise = function($val_incise){
+            $i = 0;
+            $val_incises = [];
+            if(!empty($val_incise)){
+                foreach ($val_incise as $sort)
+                {
+                    $val_incises[$i] = $sort;
+                    $i++;
+                }
+            }
+            return $val_incises;
+        };
+        $val_incise = $val_incise(array_filter(explode('/',$rule_val)));
+
+        if(!is_null($rule_key))
+        {
+            $key_incise = explode('/',$rule_key);
+            $param_arr = [];
+            foreach ($key_incise as $key=>$param)
+            {
+                if(!empty($val_incise[$key]))
+                {
+                    $val = str_replace('.'.self::$ext,'',$val_incise[$key]);
+                    $param_arr[str_replace('?','',$param)] = $val;
+                }
+            }
+            //闭包验证
+            if(!is_null($rule_fun))
+            {
+                if(is_object($rule_fun))
+                {
+                    $param_arr = $rule_fun($param_arr);
+                }
+            }
+            if($param_arr){
+                self::$param = $param_arr;
+            }else{
+                throw new \Exception(Lang::get('error_param_verify').self::$http.' ');
+            }
+
+        }else{
+            if(!empty($val_incise)){
+                self::$param = $val_incise;
+            }else{
+                throw new \Exception(Lang::get('error_param_verify').self::$http.' ');
+            }
         }
 
     }
@@ -207,7 +272,10 @@ class Router{
         if($extension !== $ext)
         {
             throw new \Exception(Lang::get('error_extension').$ext);
+        }else{
+            self::$ext = $ext;
         }
+
     }
 
 
@@ -231,12 +299,10 @@ class Router{
         if($array_length){
             while($i<$array_length){
                 if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
-
                     if(!empty($array_path[$i+1])){
-                        return $array_path[$i].DIRECTORY_SEPARATOR.$array_path[$i+1];
-                    }else{
-                        return $array_path[$i];
+                        self::$method = $array_path[$i+1];
                     }
+                    return $array_path[$i];
                 }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])) {
                     if (!empty($array_path[$i + 1])) {
                         $array_path[$i + 1] = $array_path[$i] . DIRECTORY_SEPARATOR . $array_path[$i + 1];

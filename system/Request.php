@@ -23,6 +23,7 @@ class Request{
      */
     public function __construct()
     {
+        include SYS_PATH . "functions/SafetyFilter.php";
         $this->server = $_SERVER;
         self::$start_time = $this->server['REQUEST_TIME_FLOAT'];
         $this->request_method();
