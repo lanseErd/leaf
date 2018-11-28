@@ -14,8 +14,8 @@ class Leaf{
         include APP_PATH . "route.php";
         $action_resource =  Router::external();
         self::$action_url = $action_resource[0];
-        self::$action_method = $action_resource[1];
-        self::$action_param = $action_resource[2];
+        self::$action_method = $action_resource[1]?:'';
+        self::$action_param = $action_resource[2]?:[];
         self::controller();
     }
 
@@ -24,13 +24,12 @@ class Leaf{
         $path = 'Items'.DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,self::$action_url);
         $class = new \ReflectionClass($path);
         $constructor = $class->newInstanceArgs();
-
         //加载方法
         $default_method = 0;
         if(!empty(self::$action_method) && $class->hasMethod(self::$action_method)){
             $method = new \ReflectionMethod($constructor, self::$action_method);
             if($method->isPublic()){
-                $method->invokeArgs($constructor,self::$action_param);
+                $method->invoke($constructor,self::$action_param);
             }else{
                 $default_method = true;
             }

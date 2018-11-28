@@ -7,10 +7,11 @@
  */
 
 namespace Items\controller\member;
+
 class member{
-    public function add($id,$userid)
+    public function add($rr)
     {
-        echo $id;
+        echo $rr['1'];
     }
 
     public function init(){

@@ -21,4 +21,7 @@ $cn['logger'] = [
 
 //调试模式
 $cn['debug'] = true;
+$cn['default_ext'] = 'html';
+
+
 return $cn;

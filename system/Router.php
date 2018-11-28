@@ -210,7 +210,7 @@ class Router{
 
         }else{
             if(!empty($val_incise)){
-                self::$param = $val_incise;
+                self::$param = str_replace('.'.Config::get('default_ext'),'',$val_incise);
             }else{
                 throw new \Exception(Lang::get('error_param_verify').self::$http.' ');
             }
@@ -273,21 +273,13 @@ class Router{
     private static function extension(string $ext=null)
     {
         $extension = self::$param_assets['extension'] ?? null;
-        if($extension !== $ext)
+        if($extension !== $ext && $extension!== Config::get('default_ext'))
         {
             throw new \Exception(Lang::get('error_extension').$ext);
         }else{
             self::$ext = $ext;
         }
 
-    }
-
-
-
-
-    public function route()
-    {
-        //$this->request = new Request();
     }
 
 
