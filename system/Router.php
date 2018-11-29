@@ -96,15 +96,21 @@ class Router{
 
                     //self::$http = substr($val[0],0,strripos($val[0],'/'));
                     //self::$method = substr($val[0],strripos($val[0],'/')+1,strlen($val[0]));
-
-                    self::$http = self::is_controller_method($val[0]);
+                    $param_incise = $val[0];
+                    $rule_param = '';
+                    $parse = parse_url($val[0]);
+                    if(!empty($parse['query'])){
+                        $param_incise = $parse['path'];
+                        $rule_param = '?'.$parse['query'];
+                    }
+                    self::$http = self::is_controller_method($param_incise);
 
                     $rule_fun = ($val['param']??$rule['param'])??null;
                     $rule_key = substr($key,strlen($route_path),strlen($key))?:null;
                     $rule_val = substr($http_url_verify,strlen($route_path),strlen($http_url_verify))?:null;
                     //对参数进行解析
                     if(!is_null($rule_key) && !is_null($rule_val)){
-                        self::param_parse($rule_key,$rule_val,$rule_fun);
+                        self::param_parse($rule_key,$rule_val.$rule_param,$rule_fun);
                     }
                 }else{
 
@@ -112,12 +118,13 @@ class Router{
                     self::extension();
                     //判断默认路由规则
                     //echo $http_url_verify;
+                    $http_url_verify = str_replace('.'.Config::get('default_ext'),'',$http_url_verify);
                     $route_path = self::is_controller_method($http_url_verify);
                     $_method = '';
                     if(!empty(self::$method)){
-                        $_method = '/'.self::$method;
+                        $_method = '\\'.self::$method;
                     }
-                    $rule_val = substr($http_url_verify,strlen($route_path.$_method),strlen($http_url_verify))?:null;
+                    $rule_val = substr($http_url_verify,strlen($route_path.$_method)+1,strlen($http_url_verify))?:null;
                     //对参数进行解析
                     if(!is_null($rule_val)){
                         self::param_parse(null,$rule_val,null);
@@ -180,6 +187,14 @@ class Router{
             }
             return $val_incises;
         };
+
+        $rule_param_val = '';
+        //检查有没有额外参数
+        $parse = parse_url($rule_val);
+        if(!empty($parse['query'])){
+            $rule_param_val = $parse['query'];
+            $rule_val = $parse['path'];
+        }
         $val_incise = $val_incise(array_filter(explode('/',$rule_val)));
 
         if(!is_null($rule_key))
@@ -191,7 +206,7 @@ class Router{
                 if(!empty($val_incise[$key]))
                 {
                     $val = str_replace('.'.self::$ext,'',$val_incise[$key]);
-                    $param_arr[str_replace('?','',$param)] = $val;
+                    $param_arr[str_replace('?','',$param)] = new_addslashes($val);
                 }
             }
             //闭包验证
@@ -202,6 +217,13 @@ class Router{
                     $param_arr = $rule_fun($param_arr);
                 }
             }
+
+            //如果有额外参数则解析
+            if(!empty($rule_param_val)){
+                parse_str($rule_param_val,$parr);
+                $param_arr = array_merge($param_arr,$parr);
+            }
+
             if($param_arr){
                 self::$param = $param_arr;
             }else{
@@ -210,7 +232,7 @@ class Router{
 
         }else{
             if(!empty($val_incise)){
-                self::$param = str_replace('.'.Config::get('default_ext'),'',$val_incise);
+                self::$param = new_addslashes($val_incise);
             }else{
                 throw new \Exception(Lang::get('error_param_verify').self::$http.' ');
             }

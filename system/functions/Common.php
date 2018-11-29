@@ -29,3 +29,27 @@ if ( ! function_exists('load_file'))
 
     }
 }
+
+
+/**
+ * 返回经addslashes处理过的字符串或数组
+ * @param $string 需要处理的字符串或数组
+ * @return mixed
+ */
+
+if ( ! function_exists('new_addslashes')) {
+
+    function new_addslashes($string)
+    {
+        if (!is_array($string)) return addslashes($string);
+        foreach ($string as $key => $val) {
+            if (is_array($val)) {
+                $string[$key] = new_addslashes(($val));
+            } else {
+                $string[$key] = new_addslashes(trim($val));
+            }
+
+        }
+        return $string;
+    }
+}

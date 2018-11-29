@@ -50,4 +50,4 @@ class Load{
 
 
 //加载系统方法
-require SYS_PATH.'Common.php';
+require SYS_PATH . 'functions/Common.php';

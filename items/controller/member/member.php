@@ -11,7 +11,7 @@ namespace Items\controller\member;
 class member{
     public function add($rr)
     {
-        echo $rr['1'];
+        echo $rr['id'];
     }
 
     public function init(){
