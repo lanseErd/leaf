@@ -253,3 +253,7 @@
 [2018-11-29 09:49:42] Leaf.NOTICE: Undefined index: id D:\djc_cms_test\leaf\items\controller\member\member.php LINE:14 [] {"url":"/member/member/add/5gg.html","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
 [2018-11-29 09:50:06] Leaf.ERROR: Fatal error: 扩展名错误 ： D:\djc_cms_test\leaf\system\Router.php LINE:300 [] {"url":"/member/member/add/5gg.php","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
 [2018-11-29 09:50:09] Leaf.NOTICE: Undefined index: id D:\djc_cms_test\leaf\items\controller\member\member.php LINE:14 [] {"url":"/member/member/add/5gg.html","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-29 14:46:52] Leaf.ERROR: Fatal error: 扩展名错误 ：html D:\wamp64\www\leaf\system\Router.php LINE:317 [] {"url":"/mem","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-29 14:46:55] Leaf.ERROR: Fatal error: 扩展名错误 ：html D:\wamp64\www\leaf\system\Router.php LINE:317 [] {"url":"/mem","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-29 14:46:58] Leaf.NOTICE: Undefined index: id D:\wamp64\www\leaf\items\controller\member\member.php LINE:14 [] {"url":"/mem.html","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-11-29 14:47:03] Leaf.NOTICE: Undefined index: id D:\wamp64\www\leaf\items\controller\member\member.php LINE:14 [] {"url":"/mem.html","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}

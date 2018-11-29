@@ -10,19 +10,36 @@ use Leaf\Request;
 
 class Router{
 
+    /**
+     * @控制器地址
+     */
     private static $http;
 
+    /**
+     * @方法
+     */
     private static $method;
 
+    /**
+     * @参数
+     */
     private static $param;
 
+    /**
+     * @扩展名
+     */
     private static $ext;
 
+    /**
+     * @全局参数信息
+     */
     private static $param_assets;
 
-    private $request;
 
-
+    /**
+     * 输出处理后的数据
+     * @return array
+     */
     public static function external()
     {
         return [self::$http,self::$method,self::$param];
