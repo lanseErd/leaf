@@ -35,7 +35,6 @@ class Router{
      */
     private static $param_assets;
 
-
     /**
      * 输出处理后的数据
      * @return array
@@ -91,28 +90,10 @@ class Router{
                 if(substr($http_url_verify,0,strlen($route_path)) === $route_path){
 
                     //判断请求方式
-                    if(!empty($val['method']))
-                    {
-                        self::{$val['method']}();
-                    }
-                    else if(!empty($rule['method']))
-                    {
-                        self::{$rule['method']}();
-                    }
+                    self::request_method($val['method']??$rule['method']);
                     //验证扩展名
-                    if(!empty($val['ext']))
-                    {
-                        self::extension($val['ext']);
-                    }
-                    else if(!empty($rule['ext']))
-                    {
-                        self::extension($rule['ext']);
-                    } else {
-                        self::extension();
-                    }
+                    self::extension($val['ext']??$rule['ext']);
 
-                    //self::$http = substr($val[0],0,strripos($val[0],'/'));
-                    //self::$method = substr($val[0],strripos($val[0],'/')+1,strlen($val[0]));
                     $param_incise = $val[0];
                     $rule_param = '';
                     $parse = parse_url($val[0]);
@@ -181,6 +162,24 @@ class Router{
 
     }
 
+    /**
+     * 请求方法验证
+     * @param $_method
+     * @return bool
+     * @throws \Exception
+     */
+    private static function request_method($_method)
+    {
+        if(!empty($_method)){
+            $method_arr = explode('|',$_method);
+            foreach($method_arr as $val){
+                if(strtolower(Request::$method) == $val){
+                    return true;
+                }
+            }
+        }
+        throw new \Exception(Lang::get('no_request_method').Request::$method);
+    }
 
     /**
      * 参数解析
@@ -312,11 +311,24 @@ class Router{
     private static function extension(string $ext=null)
     {
         $extension = self::$param_assets['extension'] ?? null;
-        if($extension !== $ext && $extension!== Config::get('default_ext'))
-        {
-            throw new \Exception(Lang::get('error_extension').$ext);
-        }else{
-            self::$ext = $ext;
+        $ext = explode('|',$ext);
+        if(!empty($ext)){
+            foreach ($ext as $val){
+                if($extension == $val){
+                    self::$ext = $val;
+                    return false;
+                }elseif($extension== Config::get('default_ext')){
+                    self::$ext = Config::get('default_ext');
+                    return false;
+                }
+                $error_ext = $val;
+            }
+        }
+
+        if(!empty($extension)){
+            if($extension !== Config::get('default_ext')){
+                throw new \Exception(Lang::get('error_extension').$error_ext.' '.Config::get('default_ext'));
+            }
         }
 
     }

@@ -16,6 +16,7 @@ class Leaf{
         self::$action_url = $action_resource[0];
         self::$action_method = $action_resource[1]?:'';
         self::$action_param = $action_resource[2]?:[];
+        die;
         self::controller();
     }
 
