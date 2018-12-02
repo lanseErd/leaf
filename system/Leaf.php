@@ -8,18 +8,26 @@ class Leaf{
     public static $action_method;
     public static $action_param;
 
+    /**
+     * 运行
+     * @throws \ReflectionException
+     */
     public static function run()
     {
         new Request();
         include APP_PATH . "route.php";
-        $action_resource =  Router::external();
-        self::$action_url = $action_resource[0];
-        self::$action_method = $action_resource[1]?:'';
-        self::$action_param = $action_resource[2]?:[];
-        die;
+        $action_resource =  Router::client();
+        self::$action_url = $action_resource['path'];
+        self::$action_method = $action_resource['method']?:'';
+        self::$action_param = $action_resource['param']?:[];
+
         self::controller();
     }
 
+    /**
+     * 加载控制器
+     * @throws \ReflectionException
+     */
     public static function controller()
     {
         $path = 'Items'.DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,self::$action_url);
@@ -40,7 +48,12 @@ class Leaf{
 
         //没有方法就载入默认方法
         if($default_method){
-            $constructor->init();
+            if($class->hasMethod('init')){
+                $constructor->init();
+            }else{
+                throw new \Exception(Lang::get('empty_leaf_init'));
+            }
+
         }
 
     }

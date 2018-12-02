@@ -11,7 +11,7 @@ namespace Items\controller\member;
 class member{
     public function add($rr)
     {
-        echo $rr['id'];
+        var_dump($rr);
     }
 
     public function init(){

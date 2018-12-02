@@ -10,327 +10,313 @@ use Leaf\Request;
 
 class Router{
 
-    /**
-     * @控制器地址
-     */
-    private static $http;
 
     /**
-     * @方法
+     * 当前完整的url
+     * @var
      */
-    private static $method;
+    private static $http_url;
 
     /**
-     * @参数
+     * 路由信息
+     * @var array
      */
-    private static $param;
+    private static $route_info = [];
 
     /**
-     * @扩展名
+     * 载入前的路由前缀
+     * @var array
      */
-    private static $ext;
+    private static $route_url_prefix = [];
 
     /**
-     * @全局参数信息
+     * 当前请求部分数据
+     * @var array
      */
-    private static $param_assets;
+    private static $cache_param_assets = [];
 
     /**
-     * 输出处理后的数据
-     * @return array
+     * @ 当前的参数
      */
-    public static function external()
-    {
-        return [self::$http,self::$method,self::$param];
-    }
+    private static $cache_param;
 
     /**
-     * 注册路由
-     * @param array $alias
-     * @param array $rule
+     * @ 当前的扩展名
+     */
+    private static $cache_ext;
+
+    /**
+     * @当前的请求方式
+     */
+    private static $cache_request_method;
+
+    /**
+     * 当前的路由前缀
+     * @var
+     */
+    private static $cache_prefix;
+
+    /**
+     * 实例化路由
+     * @return mixed
      * @throws \Exception
      */
-    public static function init(array $alias, array $rule = [])
-    {
-        self::$param_assets = pathinfo(Request::$param_url);
-        $http_url = str_replace(['\\','/'],['',DIRECTORY_SEPARATOR],self::$param_assets['dirname']);
-        if(!empty($http_url))
+    public static function client(){
+        self::$cache_param_assets = pathinfo(Request::$param_url);
+        self::request_disassemble();
+
+        if(!isset(self::$route_info[self::$cache_prefix]))
         {
-            $http_url .= DIRECTORY_SEPARATOR;
-        }
-        $http_url .= self::$param_assets['basename'];
-
-        if(!empty($alias) && !empty($http_url))
-        {
-            //判断是否有默认方法，有的话就在常规方法里处理删掉这项
-            if(!empty($alias['leaf_default']))
+            if(!empty(self::$http_url))
             {
-                unset($alias['leaf_default']);
-            }
-
-            foreach($alias as $key=>$val)
-            {
-                $route_path = substr($key,0,strpos($key,'?')) ?: $key;
-
-                $http_url_verify = array_filter(explode(DIRECTORY_SEPARATOR,$http_url));
-                $http_url_verify = implode('/',$http_url_verify).'/';
-
-                //加上斜杠方便匹配
-                $is_req_dir = pathinfo($http_url_verify);
-                if(strlen($is_req_dir['dirname']) <=1 )
-                {
-                    $http_url_verify = $is_req_dir['filename'].'/';
-                }
-
-                if($route_path[strlen($route_path)-1]!=='/')
-                {
-                    $route_path = $route_path.'/';
-                }
-                //判断有没有申明该路由
-                if(substr($http_url_verify,0,strlen($route_path)) === $route_path){
-
-                    //判断请求方式
-                    self::request_method($val['method']??$rule['method']);
-                    //验证扩展名
-                    self::extension($val['ext']??$rule['ext']);
-
-                    $param_incise = $val[0];
-                    $rule_param = '';
-                    $parse = parse_url($val[0]);
-                    if(!empty($parse['query'])){
-                        $param_incise = $parse['path'];
-                        $rule_param = '?'.$parse['query'];
-                    }
-                    self::$http = self::is_controller_method($param_incise);
-
-                    $rule_fun = ($val['param']??$rule['param'])??null;
-                    $rule_key = substr($key,strlen($route_path),strlen($key))?:null;
-                    $rule_val = substr($http_url_verify,strlen($route_path),strlen($http_url_verify))?:null;
-                    //对参数进行解析
-                    if(!is_null($rule_key) && !is_null($rule_val)){
-                        self::param_parse($rule_key,$rule_val.$rule_param,$rule_fun);
-                    }
-                }else{
-
-                    //验证扩展名
-                    self::extension();
-                    //判断默认路由规则
-                    //echo $http_url_verify;
-                    $http_url_verify = str_replace('.'.Config::get('default_ext'),'',$http_url_verify);
-                    $route_path = self::is_controller_method($http_url_verify);
-                    $_method = '';
-                    if(!empty(self::$method)){
-                        $_method = '\\'.self::$method;
-                    }
-                    $rule_val = substr($http_url_verify,strlen($route_path.$_method)+1,strlen($http_url_verify))?:null;
-                    //对参数进行解析
-                    if(!is_null($rule_val)){
-                        self::param_parse(null,$rule_val,null);
-                    }
-                    if(!empty($route_path)){
-                        $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
-                        self::$http = $route_path;
-                    }else{
-                        //没有该接口
-                        throw new \Exception(Lang::get('no_address')."：".$http_url);
-                    }
-                }
-            }
-
-        }
-        //默认的路由规则加载
-        else {
-            if(!empty($alias['leaf_default'])){
-                if(!empty($rule['method']))
-                {
-                    self::{$rule['method']}();
-                }
-                $route_path = self::is_controller_method($alias['leaf_default']);
-                if(!empty($route_path)){
-                    $route_path = str_ireplace(DIRECTORY_SEPARATOR,'/',$route_path);
-                    self::$http = $route_path;
-                }else{
-                    //没有该接口
-                    throw new \Exception(Lang::get('no_address')."：".$alias['leaf_default']);
-                }
+                self::not_route_import();
             }else{
-                //默认方法不能为空
-                throw new \Exception(Lang::get('empty_leaf_default'));
-            }
-        }
-
-
-    }
-
-    /**
-     * 请求方法验证
-     * @param $_method
-     * @return bool
-     * @throws \Exception
-     */
-    private static function request_method($_method)
-    {
-        if(!empty($_method)){
-            $method_arr = explode('|',$_method);
-            foreach($method_arr as $val){
-                if(strtolower(Request::$method) == $val){
-                    return true;
+                //加载默认路由
+                if(!isset(self::$route_info['leaf_default/'])){
+                    throw new \Exception(Lang::get('error_leaf_default_route'));
                 }
+                self::$cache_prefix = 'leaf_default/';
             }
         }
-        throw new \Exception(Lang::get('no_request_method').Request::$method);
+        self::param_parse();
+
+        return self::$route_info[self::$cache_prefix];
     }
 
+
     /**
-     * 参数解析
-     * @param null $rule_key  路由规则
-     * @param $rule_val  参数
-     * @param null $rule_fun  处理方法
+     * 解析各路由数据
      * @throws \Exception
      */
-    private static function param_parse($rule_key = null, $rule_val, $rule_fun = null)
+    private static function param_parse()
     {
-        //去除空值并重新排序
-        $val_incise = function($val_incise){
-            $i = 0;
-            $val_incises = [];
-            if(!empty($val_incise)){
-                foreach ($val_incise as $sort)
+        $array_info = self::$route_info[self::$cache_prefix];
+        self::request_ext($array_info['ext']);
+        self::request_method($array_info['request_method']);
+        self::request_param_parse();
+    }
+
+
+    /**
+     * 参数解析过滤
+     */
+    private static function request_param_parse()
+    {
+        $array_info = self::$route_info[self::$cache_prefix];
+        $request_param_arr = array_filter(explode('/',self::$cache_param));
+        if(!empty($request_param_arr))
+        {
+            //定义过的路由参数
+            if(!empty($array_info['param']))
+            {
+                $i=0;
+                foreach ($array_info['param'] as $key=>$val)
                 {
-                    $val_incises[$i] = $sort;
+                    if(empty($array_info['param'][$key]))
+                    {
+                        $array_info['param'][$key] = new_addslashes($request_param_arr[$i]);
+                    }
                     $i++;
                 }
-            }
-            return $val_incises;
-        };
-
-        $rule_param_val = '';
-        //检查有没有额外参数
-        $parse = parse_url($rule_val);
-        if(!empty($parse['query'])){
-            $rule_param_val = $parse['query'];
-            $rule_val = $parse['path'];
-        }
-        $val_incise = $val_incise(array_filter(explode('/',$rule_val)));
-
-        if(!is_null($rule_key))
-        {
-            $key_incise = explode('/',$rule_key);
-            $param_arr = [];
-            foreach ($key_incise as $key=>$param)
-            {
-                if(!empty($val_incise[$key]))
+                //闭包验证数据
+                if(is_object($array_info['function']))
                 {
-                    $val = str_replace('.'.self::$ext,'',$val_incise[$key]);
-                    $param_arr[str_replace('?','',$param)] = new_addslashes($val);
+                    $function_param = $array_info['function']($array_info['param']);
+                    if($function_param === false){
+                        throw new \Exception(Lang::get('error_param_verify').self::$http_url);
+                    }
+                    $array_info['param'] = $function_param;
                 }
-            }
-            //闭包验证
-            if(!is_null($rule_fun))
-            {
-                if(is_object($rule_fun))
-                {
-                    $param_arr = $rule_fun($param_arr);
-                }
-            }
 
-            //如果有额外参数则解析
-            if(!empty($rule_param_val)){
-                parse_str($rule_param_val,$parr);
-                $param_arr = array_merge($param_arr,$parr);
-            }
 
-            if($param_arr){
-                self::$param = $param_arr;
             }else{
-                throw new \Exception(Lang::get('error_param_verify').self::$http.' ');
+                //未定义的路由
+                $array_info['param'] = new_addslashes($request_param_arr);
+            }
+        }
+        self::$route_info[self::$cache_prefix] = $array_info;
+    }
+
+
+    /**
+     * 验证扩展名
+     * @param array $ext
+     * @throws \Exception
+     */
+    private static function request_ext(array $ext)
+    {
+        if(!empty($ext))
+        {
+            if(!in_array(self::$cache_ext,$ext) && !(Config::get('default_ext')===self::$cache_ext)){
+                throw new \Exception(Lang::get('error_extension').self::$cache_ext);
             }
 
         }else{
-            if(!empty($val_incise)){
-                self::$param = new_addslashes($val_incise);
-            }else{
-                throw new \Exception(Lang::get('error_param_verify').self::$http.' ');
-            }
-        }
-
-    }
-
-    /**
-     * 请求方式验证get
-     * @throws \Exception
-     */
-    private static function get()
-    {
-        if(strtolower(Request::$method) !== __FUNCTION__)
-        {
-            throw new \Exception(Lang::get('no_request_method').__FUNCTION__);
-        }
-    }
-
-    /**
-     * 请求方式验证post
-     * @throws \Exception
-     */
-    private static function post()
-    {
-        if(strtolower(Request::$method) !== __FUNCTION__)
-        {
-            throw new \Exception(Lang::get('no_request_method').__FUNCTION__);
-        }
-    }
-
-    /**
-     * 请求方式验证put
-     * @throws \Exception
-     */
-    private static function put()
-    {
-        if(strtolower(Request::$method) !== __FUNCTION__)
-        {
-            throw new \Exception(Lang::get('no_request_method').__FUNCTION__);
-        }
-    }
-
-    /**
-     * 请求方式验证delete
-     * @throws \Exception
-     */
-    private static function delete()
-    {
-        if(strtolower(Request::$method) !== __FUNCTION__)
-        {
-            throw new \Exception(Lang::get('no_request_method').__FUNCTION__);
-        }
-    }
-
-    /**
-     * 扩展名验证
-     * @throws \Exception
-     */
-    private static function extension(string $ext=null)
-    {
-        $extension = self::$param_assets['extension'] ?? null;
-        $ext = explode('|',$ext);
-        if(!empty($ext)){
-            foreach ($ext as $val){
-                if($extension == $val){
-                    self::$ext = $val;
-                    return false;
-                }elseif($extension== Config::get('default_ext')){
-                    self::$ext = Config::get('default_ext');
-                    return false;
+            if(!empty(self::$cache_ext)){
+                if(Config::get('default_ext')!==self::$cache_ext){
+                    throw new \Exception(Lang::get('error_extension').self::$cache_ext);
                 }
-                $error_ext = $val;
+            }
+        }
+    }
+
+
+    /**
+     * 验证请求方式
+     * @param array $request_method
+     * @throws \Exception
+     */
+    private static function request_method(array $request_method)
+    {
+        if(!empty($request_method[0]))
+        {
+            if(!in_array(self::$cache_request_method,$request_method)){
+                throw new \Exception(Lang::get('no_request_method').self::$cache_request_method);
+            }
+
+        }
+    }
+
+
+
+    /**
+     * 请求的路由数据分解
+     * @return bool
+     */
+    private static function request_disassemble()
+    {
+        self::$cache_request_method = strtolower(Request::$method);
+        if(self::$cache_param_assets['dirname'] !== '\\')
+        {
+            self::$http_url = self::$cache_param_assets['dirname'];
+        }
+
+        if(!empty(self::$cache_param_assets['filename']))
+        {
+            self::$http_url .= '/'.self::$cache_param_assets['filename'].'/';
+            self::$cache_ext = self::$cache_param_assets['extension']??'';
+        }
+
+        if(!empty(self::$http_url))
+        {
+            foreach (self::$route_url_prefix as $val)
+            {
+                if(strpos(self::$http_url,$val,0) === 0 )
+                {
+                    self::$cache_prefix = substr($val,1);
+                    self::$cache_param = str_replace($val,'',self::$http_url);
+                    return true;
+                }
+            }
+            self::$cache_prefix = self::$http_url;
+        }
+    }
+
+
+
+
+
+
+
+
+    /**
+     *
+     * 下半部分代码是导入路由处理逻辑
+     *
+     *
+     *
+     * 初始化路由信息
+     * @param $alias
+     * @param $rule
+     * @param array $manage
+     */
+    public static function init($alias, $rule, array $manage = [])
+    {
+        if(is_string($alias))
+        {
+            if(!empty($alias) && !empty($rule)) {
+                self::route_import($alias, $rule, $manage);
             }
         }
 
-        if(!empty($extension)){
-            if($extension !== Config::get('default_ext')){
-                throw new \Exception(Lang::get('error_extension').$error_ext.' '.Config::get('default_ext'));
+        if(is_array($alias)){
+            if(!empty($alias)){
+                foreach($alias as $key=>$val){
+                    $arr['method'] = ($val['method']??$rule['method'])?:'';
+                    $arr['ext'] = ($val['ext']??$rule['ext'])?:'';
+
+                    if(isset($val['param'])){
+                        $arr['param'] = $val['param'];
+                    }
+                    if(isset($rule['param'])){
+                        $arr['param'] = $rule['param'];
+                    }
+                    $arr['param'] = $arr['param']??[];
+                    self::route_import($key,$val[0],$arr);
+                }
             }
         }
 
+
+    }
+
+    /**
+     * 处理路由信息并保存
+     * @param $alias
+     * @param $rule
+     * @param array $manage
+     * @throws \Exception
+     */
+    private static function route_import($alias, $rule, array $manage = [])
+    {
+        $posnum = strpos($alias,'?');
+        $route_path = substr($alias,0,$posnum) ?: $alias;
+        if($route_path[strlen($route_path)-1] !== '/'){
+            $route_path = $route_path.'/';
+        }
+        if(!isset(self::$route_info[$route_path])){
+            $rule_path_method = self::is_controller_method($rule);
+            $parse_method = parse_url($rule_path_method[1]);
+            $array_route['path'] = $rule_path_method[0];
+            $array_route['method'] = $parse_method['path']??'';
+
+            $route_param = '';
+            if($posnum){
+                $route_param = str_replace('?','',substr($alias,$posnum,strlen($alias)) ?: '');
+            }
+            $route_param .= ($parse_method['query'] ?? '')?'?'.$parse_method['query'] ?? '':'';
+            $array_route['param'] = self::route_param_array($route_param);
+            $array_route['request_method'] = explode('|',$manage['method']??'');
+            $array_route['ext'] = explode('|',$manage['ext']??'');
+            $array_route['function'] = $manage['param']??'';
+
+            self::$route_info[$route_path] = $array_route;
+            self::$route_url_prefix[] = '/'.$route_path;
+        }
+
+    }
+
+    /**
+     * 没有路由设置的情况下解析请求信息
+     */
+    private static function not_route_import()
+    {
+        $rule_path_method = self::is_controller_method(self::$http_url);
+        if(!isset(self::$route_info[self::$cache_prefix])){
+            $array_route['path'] = substr($rule_path_method[0],1);
+            $array_route['method'] = $rule_path_method[1];
+            $array_route['param'] = [];
+            $array_route['request_method'] = [];
+            $array_route['ext'] = [];
+
+            $param_url = str_replace('\\','/',$rule_path_method[0]);
+            if(!empty($rule_path_method[1])){
+                $param_url .= '/'.$rule_path_method[1].'/';
+            }
+            self::$cache_param = str_replace($param_url,'',self::$http_url);
+
+            self::$route_info[self::$cache_prefix] = $array_route;
+        }
     }
 
 
@@ -344,12 +330,13 @@ class Router{
         $array_length = count($array_path);
         $i=0;
         if($array_length){
+            $method = '';
             while($i<$array_length){
                 if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i].'.php')){
                     if(!empty($array_path[$i+1])){
-                        self::$method = $array_path[$i+1];
+                        $method = $array_path[$i+1];
                     }
-                    return $array_path[$i];
+                    return [$array_path[$i],$method];
                 }else if(file_exists('controller'.DIRECTORY_SEPARATOR.$array_path[$i])) {
                     if (!empty($array_path[$i + 1])) {
                         $array_path[$i + 1] = $array_path[$i] . DIRECTORY_SEPARATOR . $array_path[$i + 1];
@@ -359,7 +346,45 @@ class Router{
             }
         }
 
-        return false;
+        throw new \Exception(Lang::get('no_address').$http_path);
     }
 
+
+    /**
+     * 参数解析
+     * @param null $rule_key  路由规则
+     * @param $rule_val  参数
+     * @param null $rule_fun  处理方法
+     * @throws \Exception
+     */
+    private static function route_param_array($rule_param = null)
+    {
+        if($rule_param){
+            $parse_array = parse_url($rule_param);
+            $path_array = [];
+            if(!empty($parse_array['path']))
+            {
+                $parse_array_path = explode('/',$parse_array['path']);
+                foreach($parse_array_path as $val)
+                {
+                    $path_array[$val] = '';
+                }
+            }
+
+            $query_array = [];
+            if(!empty($parse_array['query']))
+            {
+                parse_str($parse_array['query'],$query_array);
+            }
+            $rele_array = array_merge($path_array,$query_array);
+            return $rele_array;
+        }
+
+        return '';
+
+    }
+
+
 }
+
+?>
