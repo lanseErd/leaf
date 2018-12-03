@@ -33,7 +33,6 @@ class Load{
         if($path_array[0] === 'Leaf'){
             $dir = SYS_PATH.str_replace("Leaf".DIRECTORY_SEPARATOR,'',$className).".php";
             if(file_exists($dir)){
-                //echo $dir;
                 include $dir;
             }
         }elseif ($path_array[0] === 'Items'){

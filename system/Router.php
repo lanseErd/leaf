@@ -6,7 +6,6 @@
  */
 
 namespace Leaf;
-use Leaf\Request;
 
 class Router{
 

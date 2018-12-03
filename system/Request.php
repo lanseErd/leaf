@@ -26,8 +26,8 @@ class Request{
         include SYS_PATH . "functions/SafetyFilter.php";
         $this->server = $_SERVER;
         self::$start_time = $this->server['REQUEST_TIME_FLOAT'];
+        self::$param_url = $this->server['REQUEST_URI'];
         $this->request_method();
-        $this->request_url();
     }
 
 
@@ -39,30 +39,5 @@ class Request{
         self::$method = $this->server['REQUEST_METHOD'];
     }
 
-
-    /**
-     * url处理
-     */
-    private function request_url(){
-        self::$param_url = $this->server['REQUEST_URI'];
-        /*
-        $url = pathinfo(strtolower($this->server['REQUEST_URI']));
-        var_dump($url);
-        foreach($url as $key=>$val)
-        {
-            if($key === 'dirname')
-            {
-                $path = explode('/',$val);
-                $path = array_filter($path);
-                foreach($path as $path_val){
-                    $path_url[] = $path_val;
-                    //preg_match('/(^\w+$)/', $val, $matches);
-                }
-                self::$param_url['dirname'] = $path_url;
-            }else{
-                self::$param_url[$key] = $val;
-            }
-        }*/
-    }
 }
 ?>
