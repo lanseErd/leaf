@@ -1,0 +1,4 @@
+[2018-12-06 15:52:44] Leaf.ERROR: Fatal error: Call to undefined method Error::inits() D:\wamp64\www\leaf\system\Loads.php LINE:9 [] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-12-06 15:54:32] Leaf.ERROR: Fatal error: Call to undefined method Error::inits() D:\wamp64\www\leaf\system\Loads.php LINE:9 [] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-12-06 15:55:20] Leaf.ERROR: Fatal error: Call to undefined method Error::inits() D:\wamp64\www\leaf\system\Loads.php LINE:9 [] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}
+[2018-12-06 15:55:57] Leaf.ERROR: Fatal error: Call to undefined method Error::inits() D:\wamp64\www\leaf\items\index.php LINE:17 [] {"url":"/","ip":"127.0.0.1","http_method":"GET","server":"leaf.com","referrer":null}

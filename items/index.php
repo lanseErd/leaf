@@ -13,7 +13,6 @@ Leaf\Load::initialize();
 Leaf\Config::set(include APP_PATH.'configs/config.php');
 //注册异常
 Leaf\Error::init();
-
 //开启运行日志
 //(new Leaf\Log())->user_defined_log('test.log','uuu',['www'=>22,'fff'=>444,'uuui'=>888]);
 //$run_log->run_log();

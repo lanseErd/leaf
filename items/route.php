@@ -6,7 +6,6 @@
  */
 
 use Leaf\Router;
-use Leaf\Router2;
 
 /*
  * method支持get,post,put,delete
